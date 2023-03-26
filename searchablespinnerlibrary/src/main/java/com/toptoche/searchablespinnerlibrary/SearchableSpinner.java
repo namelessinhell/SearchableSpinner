@@ -158,9 +158,10 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
         if(revert){
            _isDirty = false;
         }else{
-           _isDirty = true;
-           setAdapter(_arrayAdapter);
+           _isDirty = true;           
         }
+            
+        setAdapter(_arrayAdapter);
     }
                 
     @Override
