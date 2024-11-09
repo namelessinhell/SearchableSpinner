@@ -45,6 +45,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Set Java version compatibility
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
 }
 
 group = "com.toptoche.searchablespinner"
@@ -58,7 +64,7 @@ publishing {
                 if (releaseVariant != null) {
                     releaseVariant.outputs.each { output ->
                         artifact(output.outputFile) {
-                            builtBy output.assemble // Use 'assemble' for older AGP versions
+                            builtBy output.assemble
                         }
                     }
                 }
@@ -96,22 +102,23 @@ publishing {
     }
 }
 
-task sourcesJar(type: Jar) {
+tasks.register("sourcesJar", Jar) {
     from android.sourceSets.main.java.srcDirs
     archiveClassifier.set('sources')
 }
 
-task javadoc(type: Javadoc) {
+tasks.register("javadoc", Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register("javadocJar", Jar) {
+    dependsOn tasks.javadoc
     archiveClassifier.set('javadoc')
-    from javadoc.destinationDir
+    from tasks.javadoc.destinationDir
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+    archives tasks.sourcesJar
+    archives tasks.javadocJar
 }
