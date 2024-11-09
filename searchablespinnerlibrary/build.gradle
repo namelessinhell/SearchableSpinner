@@ -26,7 +26,7 @@ ext {
 }
 
 android {
-    namespace "com.toptoche.searchablespinner"
+    namespace "com.toptoche.searchablespinnerlibrary"
     compileSdkVersion 33
     buildToolsVersion "33.0.0"
 
