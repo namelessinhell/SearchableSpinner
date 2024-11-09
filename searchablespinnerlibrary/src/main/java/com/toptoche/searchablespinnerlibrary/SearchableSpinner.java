@@ -33,7 +33,7 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
         super(context);
         this._context = context;
         init();
-    }                             
+    }
 
     public SearchableSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -158,12 +158,12 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
         if(revert){
            _isDirty = false;
         }else{
-           _isDirty = true;           
+           _isDirty = true;
         }
-            
+
         setAdapter(_arrayAdapter);
     }
-                
+
     @Override
     public int getSelectedItemPosition() {
         if (!TextUtils.isEmpty(_strHintText) && !_isDirty) {
@@ -179,6 +179,15 @@ public class SearchableSpinner extends Spinner implements View.OnTouchListener,
             return null;
         } else {
             return super.getSelectedItem();
+        }
+    }
+
+
+    public void setSelectItem(int position){
+        if(_isDirty){
+            if(_items.size() > position){
+                setSelection(position);
+            }
         }
     }
 }
