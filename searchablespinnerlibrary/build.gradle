@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 
 ext {
     bintrayRepo = 'maven'
@@ -24,102 +25,93 @@ ext {
     allLicenses = ["Apache-2.0"]
 }
 
-def siteUrl = 'https://github.com/miteshpithadiya/SearchableSpinner'
-def gitUrl = 'https://github.com/miteshpithadiya/SearchableSpinner.git'
-
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    namespace "com.toptoche.searchablespinner"
+    compileSdkVersion 33
+    buildToolsVersion "33.0.0"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 33
         versionCode 8
         versionName "1.3.1"
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
 }
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-apply plugin: 'com.jfrog.bintray'
-
-version = "1.3.1"
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "SearchableSpinner"
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
-apply plugin: 'com.github.dcendents.android-maven'
 
 group = "com.toptoche.searchablespinner"
+version = "1.3.1"
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'A simple spinner with an extra ability to search for the items.'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            afterEvaluate {
+                def releaseVariant = android.libraryVariants.find { it.name == "release" }
+                if (releaseVariant != null) {
+                    releaseVariant.outputs.each { output ->
+                        artifact(output.outputFile) {
+                            builtBy output.assemble // Use 'assemble' for older AGP versions
+                        }
                     }
                 }
-                developers {
-                    developer {
-                        id 'miteshpithadiya'
-                        name 'Mitesh Pithadiya'
-                        email 'miteshvanp@hotmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
 
+                groupId = publishedGroupId
+                artifactId = artifact
+                version = libraryVersion
+
+                pom {
+                    name.set(libraryName)
+                    description.set(libraryDescription)
+                    url.set(siteUrl)
+
+                    licenses {
+                        license {
+                            name.set(licenseName)
+                            url.set(licenseUrl)
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set(developerId)
+                            name.set(developerName)
+                            email.set(developerEmail)
+                        }
+                    }
+                    scm {
+                        connection.set("scm:git:$gitUrl")
+                        developerConnection.set("scm:git:$gitUrl")
+                        url.set(siteUrl)
+                    }
                 }
             }
         }
     }
 }
 
-dependencies {
-}
-
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += files(android.getBootClasspath().join(File.pathSeparator))
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
 
-task findConventions << {
-    println project.getConvention()
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
